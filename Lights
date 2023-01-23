@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <wiringPi.h>
+
+#define LIGHT_PIN 7
+#define MOTION_SENSOR_PIN 11
+
+int main() {
+    wiringPiSetup();
+    pinMode(LIGHT_PIN, OUTPUT);
+    pinMode(MOTION_SENSOR_PIN, INPUT);
+
+    while (1) {
+        if (digitalRead(MOTION_SENSOR_PIN) == 1) {
+            digitalWrite(LIGHT_PIN, HIGH);
+            printf("Light turned on\n");
+        } else {
+            digitalWrite(LIGHT_PIN, LOW);
+            printf("Light turned off\n");
+        }
+    }
+    return 0;
+}
+
+
+Here This code uses the wiringPi library, a library for controlling the GPIO pins on a Raspberry Pi. 
+The LIGHT_PIN and MOTION_SENSOR_PIN constants are defined as the pin numbers that the light and motion sensor are connected to, respectively.
+
+The code sets the LIGHT_PIN as an output and MOTION_SENSOR_PIN as an input. 
+Then it runs an infinite loop that checks the state of the motion sensor every iteration. 
+If the sensor detects motion, it will turn the light on by setting the LIGHT_PIN to high, otherwise it will turn the light off by setting the 
+LIGHT_PIN to low.
