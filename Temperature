@@ -1,71 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
+const int temperatureControlPin = 3; // The pin the temperature control is connected to
+const int humiditySensorPin = A0; // The pin the humidity sensor is connected to
 
-#define TEMPERATURE_CHANGE_PER_HUMIDITY_UNIT 2
-#define TARGET_TEMPERATURE 72
-#define TEMPERATURE_ADJUSTMENT_INTERVAL 60
+const int targetTemperature = 72; 
+const int temperatureChangePerHumidityUnit = 2;
 
-#define HUMIDITY_SENSOR_PATH "/sys/class/humidity_sensor/humidity"
-#define TEMPERATURE_CONTROL_PATH "/sys/class/thermostat/temperature"
-
-int current_temperature = 72;
-int current_humidity = 50;
-
-void read_humidity() {
-    int fd = open(HUMIDITY_SENSOR_PATH, O_RDONLY);
-    if (fd < 0) {
-        printf("Error opening humidity sensor\n");
-        return;
-    }
-
-    char buffer[5];
-    int bytes_read = read(fd, buffer, sizeof(buffer));
-    if (bytes_read < 0) {
-        printf("Error reading humidity sensor\n");
-        return;
-    }
-
-    current_humidity = atoi(buffer);
-    close(fd);
+void setup() {
+  pinMode(temperatureControlPin, OUTPUT);
+  pinMode(humiditySensorPin, INPUT);
 }
 
-void set_temperature() {
-    int temperature_change = (current_humidity - 50) * TEMPERATURE_CHANGE_PER_HUMIDITY_UNIT;
-    current_temperature = TARGET_TEMPERATURE + temperature_change;
-    printf("Setting temperature to %d degrees\n", current_temperature);
-
-    int fd = open(TEMPERATURE_CONTROL_PATH, O_WRONLY);
-    if (fd < 0) {
-        printf("Error opening temperature control\n");
-        return;
-    }
-
-    char buffer[5];
-    sprintf(buffer, "%d", current_temperature);
-    int bytes_written = write(fd, buffer, strlen(buffer));
-    if (bytes_written < 0) {
-        printf("Error writing to temperature control\n");
-    }
-    close(fd);
-}
-
-int main() {
-    while (1) {
-        read_humidity();
-        set_temperature();
-        sleep(TEMPERATURE_ADJUSTMENT_INTERVAL);
-    }
-    return 0;
+void loop() {
+  int humidity = analogRead(humiditySensorPin);
+  int temperatureChange = (humidity - 512) * temperatureChangePerHumidityUnit;
+  int currentTemperature = targetTemperature + temperatureChange;
+  analogWrite(temperatureControlPin, currentTemperature);
+  Serial.print("Setting temperature to ");
+  Serial.print(currentTemperature);
+  Serial.println(" degrees");
+  delay(1000);
 }
 
 
 
-
-This code uses the file I/O functions to read the humidity data from the sensor and write the temperature control data to the thermostat. The HUMIDITY_SENSOR_PATH and TEMPERATURE_CONTROL_PATH constants are used to specify the file paths for the humidity sensor and temperature control, respectively.
-
-The read_humidity() function is used to read the humidity data from the sensor, it opens the file, reads the data and then converts it to integer and stores it to the current_humidity variable.
-
-The set_temperature() function is used to adjust the temperature based on the current humidity level, it calculates the temperature change based on the current humidity, and updates the current_temperature. Then it opens the TEMPERATURE_CONTROL_PATH and writes the current_temperature to it
+This code uses the Arduino's analogRead() and analogWrite() functions to read the humidity data from the sensor and change the temperature accordingly.
+The temperatureControlPin and humiditySensorPin constants are defined as the pin numbers that the temperature control and humidity sensor are connected 
+to, respectively.
+The targetTemperature constant is the temperature that the system is trying to maintain. 
+The temperatureChangePerHumidityUnit constant is used to determine how much the temperature should change for each unit of humidity.
+The setup() function is called once at the beginning of the program and it sets the temperatureControlPin
