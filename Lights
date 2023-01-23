@@ -1,31 +1,27 @@
-#include <stdio.h>
-#include <wiringPi.h>
+const int lightPin = 13;    // The pin the light is connected to
+const int motionSensorPin = 2; // The pin the motion sensor is connected to
 
-#define LIGHT_PIN 7
-#define MOTION_SENSOR_PIN 11
-
-int main() {
-    wiringPiSetup();
-    pinMode(LIGHT_PIN, OUTPUT);
-    pinMode(MOTION_SENSOR_PIN, INPUT);
-
-    while (1) {
-        if (digitalRead(MOTION_SENSOR_PIN) == 1) {
-            digitalWrite(LIGHT_PIN, HIGH);
-            printf("Light turned on\n");
-        } else {
-            digitalWrite(LIGHT_PIN, LOW);
-            printf("Light turned off\n");
-        }
-    }
-    return 0;
+void setup() {
+  pinMode(lightPin, OUTPUT);
+  pinMode(motionSensorPin, INPUT);
 }
 
+void loop() {
+  int motionSensorValue = digitalRead(motionSensorPin);
+  if (motionSensorValue == HIGH) {
+    digitalWrite(lightPin, HIGH);
+    Serial.println("Light turned on");
+  } else {
+    digitalWrite(lightPin, LOW);
+    Serial.println("Light turned off");
+  }
+  delay(1000);
+}
 
-Here This code uses the wiringPi library, a library for controlling the GPIO pins on a Raspberry Pi. 
-The LIGHT_PIN and MOTION_SENSOR_PIN constants are defined as the pin numbers that the light and motion sensor are connected to, respectively.
+This code uses the Arduino's digitalRead() and digitalWrite() functions to read the state of the motion sensor and turn the light on or off accordingly. 
+The lightPin and motionSensorPin constants are defined as the pin numbers that the light and motion sensor are connected to, respectively.
 
-The code sets the LIGHT_PIN as an output and MOTION_SENSOR_PIN as an input. 
-Then it runs an infinite loop that checks the state of the motion sensor every iteration. 
-If the sensor detects motion, it will turn the light on by setting the LIGHT_PIN to high, otherwise it will turn the light off by setting the 
-LIGHT_PIN to low.
+The setup() function is called once at the beginning of the program and it sets the lightPin and motionSensorPin as output and input respectively.
+The loop() function is called continuously and it reads the state of the motion sensor every iteration. 
+If the sensor detects motion, it will turn the light on by setting the lightPin to high, otherwise it will turn the light off 
+by setting the lightPin to low.
